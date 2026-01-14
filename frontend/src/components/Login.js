@@ -8,8 +8,6 @@ const Login = () => {
     email: '',
     password: '',
   });
-  const [captcha, setCaptcha] = useState('');
-  const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,15 +20,6 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const generateCaptcha = async () => {
-    try {
-      const response = await api.get('/auth/captcha');
-      setCaptcha(response.data);
-    } catch (err) {
-      console.error('Error generating captcha:', err);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -40,23 +29,16 @@ const Login = () => {
       const response = await api.post('/auth/login', {
         email,
         password,
-        captchaAnswer: parseInt(captchaAnswer),
       });
 
       login(response.data.token);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.msg || 'Login failed');
-      generateCaptcha(); // Refresh captcha on error
-      setCaptchaAnswer('');
     } finally {
       setLoading(false);
     }
   };
-
-  React.useEffect(() => {
-    generateCaptcha();
-  }, []);
 
   return (
     <div className="auth-container">
@@ -92,20 +74,6 @@ const Login = () => {
               placeholder="Enter your password"
             />
           </div>
-
-          {captcha && (
-            <div className="form-group">
-              <label htmlFor="captcha">Solve: {captcha.question}</label>
-              <input
-                type="number"
-                id="captcha"
-                value={captchaAnswer}
-                onChange={(e) => setCaptchaAnswer(e.target.value)}
-                required
-                placeholder="Your answer"
-              />
-            </div>
-          )}
 
           {error && <div className="error-message">{error}</div>}
 
