@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
+import '../styles/Navbar.css';
 
 const Navbar = () => {
   const { logout, user, token } = useContext(AuthContext);

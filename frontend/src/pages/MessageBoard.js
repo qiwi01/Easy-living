@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import api from '../services/api';
+import '../styles/MessageBoard.css';
 
 const MessageBoard = () => {
   const { user } = useContext(AuthContext);
+  const { success, error } = useNotification();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -71,9 +74,10 @@ const MessageBoard = () => {
 
       setMessages(prev => [...prev, response.data]);
       setNewMessage('');
+      success('Message sent successfully!');
     } catch (err) {
       console.error('Failed to send message:', err);
-      alert(err.response?.data?.msg || 'Failed to send message');
+      error(err.response?.data?.msg || 'Failed to send message');
     } finally {
       setSending(false);
     }
@@ -91,9 +95,10 @@ const MessageBoard = () => {
 
       setMessages(prev => [...prev, response.data]);
       setNewMessage('');
+      success('Announcement sent successfully!');
     } catch (err) {
       console.error('Failed to send announcement:', err);
-      alert(err.response?.data?.msg || 'Failed to send announcement');
+      error(err.response?.data?.msg || 'Failed to send announcement');
     } finally {
       setSending(false);
     }
@@ -104,9 +109,10 @@ const MessageBoard = () => {
       await api.put('/messages/settings', settings);
       setChatSettings(prev => ({ ...prev, ...settings }));
       setSettingsOpen(false);
+      success('Chat settings updated successfully!');
     } catch (err) {
       console.error('Failed to update settings:', err);
-      alert('Failed to update chat settings');
+      error('Failed to update chat settings');
     }
   };
 
@@ -116,9 +122,10 @@ const MessageBoard = () => {
     try {
       await api.delete(`/messages/${messageId}`);
       setMessages(prev => prev.filter(msg => msg._id !== messageId));
+      success('Message deleted successfully!');
     } catch (err) {
       console.error('Failed to delete message:', err);
-      alert('Failed to delete message');
+      error('Failed to delete message');
     }
   };
 

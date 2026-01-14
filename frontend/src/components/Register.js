@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useNotification } from '../context/NotificationContext';
 import api from '../services/api';
+import '../styles/Auth.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({

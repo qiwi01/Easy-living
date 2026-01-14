@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './pages/Dashboard';
@@ -9,7 +10,8 @@ import Bills from './pages/Bills';
 import Wallet from './pages/Wallet';
 import MessageBoard from './pages/MessageBoard';
 import Navbar from './components/Navbar';
-import './App.css';
+import NotificationContainer from './components/NotificationContainer';
+import './styles/globals.css';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -82,11 +84,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+          <NotificationContainer />
+        </Router>
+      </AuthProvider>
+    </NotificationProvider>
   );
 }
 

@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import api from '../services/api';
+import '../styles/Auth.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
