@@ -46,6 +46,19 @@ router.get('/list', auth, async (req, res) => {
   }
 });
 
+// Get my bills (alias for /list for frontend compatibility)
+router.get('/my-bills', auth, async (req, res) => {
+  try {
+    if (!req.user.houseId) return res.status(400).json({ msg: 'Not in a house' });
+
+    const bills = await Bill.find({ houseId: req.user.houseId }).populate('payments.tenantId');
+    res.json(bills);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 // Pay bill
 router.post('/pay', auth, async (req, res) => {
   const { billId, paymentMethod } = req.body; // paymentMethod: 'wallet' or 'paystack'

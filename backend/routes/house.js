@@ -68,6 +68,19 @@ router.get('/info', auth, async (req, res) => {
   }
 });
 
+// Get my house (alias for /info for frontend compatibility)
+router.get('/my-house', auth, async (req, res) => {
+  try {
+    if (!req.user.houseId) return res.status(400).json({ msg: 'Not in a house' });
+
+    const house = await House.findById(req.user.houseId).populate('tenants').populate('subAdmins');
+    res.json(house);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 // Manage house (add/remove tenants, promote)
 router.put('/manage', auth, async (req, res) => {
   const { action, userId } = req.body; // action: 'add', 'remove', 'promote', 'demote'
