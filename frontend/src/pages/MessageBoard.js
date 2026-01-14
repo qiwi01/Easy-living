@@ -101,7 +101,7 @@ const MessageBoard = () => {
   };
 
   const deleteMessage = async (messageId) => {
-    if (!confirm('Are you sure you want to delete this message?')) return;
+    if (!window.confirm('Are you sure you want to delete this message?')) return;
 
     try {
       await api.delete(`/messages/${messageId}`);
