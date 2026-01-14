@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const House = require('../models/House');
 const User = require('../models/User');
+const Bill = require('../models/Bill');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -11,7 +12,9 @@ router.post('/create', auth, async (req, res) => {
   const { name } = req.body;
 
   try {
-    const joinCode = uuidv4();
+    // Generate a 6-digit numeric code
+    const joinCode = Math.floor(100000 + Math.random() * 900000).toString();
+
     const house = new House({
       name,
       adminId: req.user.id,
@@ -113,6 +116,35 @@ router.put('/manage', auth, async (req, res) => {
 
     await house.save();
     res.json(house);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Delete house (admin only)
+router.delete('/delete', auth, async (req, res) => {
+  try {
+    const house = await House.findById(req.user.houseId);
+    if (!house) return res.status(404).json({ msg: 'House not found' });
+
+    if (house.adminId.toString() !== req.user.id) {
+      return res.status(403).json({ msg: 'Only house admin can delete the house' });
+    }
+
+    // Remove houseId from all tenants
+    await User.updateMany(
+      { houseId: house._id },
+      { $unset: { houseId: '' } }
+    );
+
+    // Delete all bills for this house
+    await Bill.deleteMany({ houseId: house._id });
+
+    // Delete the house
+    await House.findByIdAndDelete(house._id);
+
+    res.json({ msg: 'House deleted successfully' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

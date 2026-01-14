@@ -11,9 +11,100 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
+}
+
+/* Light Theme (Default) */
+body.light-theme {
   background-color: #f5f7fa;
   color: #333;
-  line-height: 1.6;
+}
+
+/* Dark Theme */
+body.dark-theme {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark-theme .dashboard-card,
+body.dark-theme .auth-card,
+body.dark-theme .house-info-card,
+body.dark-theme .members-card,
+body.dark-theme .bill-card,
+body.dark-theme .wallet-info,
+body.dark-theme .transactions-section,
+body.dark-theme .modal {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark-theme .dashboard-card h3,
+body.dark-theme .house-header h2,
+body.dark-theme .members-card h3,
+body.dark-theme .bill-header h3,
+body.dark-theme .transactions-section h2,
+body.dark-theme .modal-header h3 {
+  color: #e0e0e0;
+}
+
+body.dark-theme .form-group label {
+  color: #e0e0e0;
+}
+
+body.dark-theme .form-group input,
+body.dark-theme .form-group textarea,
+body.dark-theme .form-group select {
+  background-color: #404040;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-theme .form-group input:focus,
+body.dark-theme .form-group textarea:focus,
+body.dark-theme .form-group select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+body.dark-theme .bill-item,
+body.dark-theme .member-item,
+body.dark-theme .transaction-item {
+  background-color: #333;
+  border-color: #555;
+}
+
+body.dark-theme .detail-item {
+  background-color: #333;
+}
+
+body.dark-theme .code-display {
+  background-color: #1a4d5a;
+  color: #e0e0e0;
+}
+
+body.dark-theme .btn-secondary {
+  background-color: #404040;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-theme .btn-secondary:hover {
+  background-color: #555;
+  border-color: #666;
+}
+
+body.dark-theme .page-header h1 {
+  color: #e0e0e0;
+}
+
+body.dark-theme .page-header p {
+  color: #b0b0b0;
+}
+
+body.dark-theme .card-content {
+  color: #b0b0b0;
 }
 
 .App {
@@ -98,6 +189,28 @@ body {
 
 .logout-btn:hover {
   background: rgba(255,255,255,0.3);
+}
+
+/* Theme Toggle */
+.theme-toggle-btn {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
 }
 
 /* Container */

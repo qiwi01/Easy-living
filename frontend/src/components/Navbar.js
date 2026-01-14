@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const { logout, user } = useContext(AuthContext);
@@ -46,6 +47,7 @@ const Navbar = () => {
           <span className="user-info">
             {user?.email && `Welcome, ${user.email.split('@')[0]}`}
           </span>
+          <ThemeToggle />
           <button onClick={handleLogout} className="logout-btn">
             <i className="icon-logout"></i>
             Logout
