@@ -9,13 +9,33 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['x-auth-token'] = token;
-      // Fetch user data if needed
-      setUser({}); // Placeholder, can fetch from /api/auth/me or something
-    }
-    setLoading(false);
-  }, [token]);
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        // Set token in axios defaults for backward compatibility
+        axios.defaults.headers.common['x-auth-token'] = storedToken;
+        setToken(storedToken);
+
+        try {
+          // Verify token is still valid by calling a protected endpoint
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {
+            headers: { 'x-auth-token': storedToken }
+          });
+          setUser(response.data);
+        } catch (error) {
+          // Token is invalid or expired, clear it
+          console.log('Token expired or invalid, clearing...');
+          localStorage.removeItem('token');
+          setToken(null);
+          setUser(null);
+          delete axios.defaults.headers.common['x-auth-token'];
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
 
   const login = (newToken) => {
     localStorage.setItem('token', newToken);

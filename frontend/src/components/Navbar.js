@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
-  const { logout, user } = useContext(AuthContext);
+  const { logout, user, token } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
