@@ -16,10 +16,12 @@ const authRoutes = require('./routes/auth');
 const houseRoutes = require('./routes/house');
 const walletRoutes = require('./routes/wallet');
 const billRoutes = require('./routes/bill');
+const messageRoutes = require('./routes/messages');
 app.use('/api/auth', authRoutes);
 app.use('/api/house', houseRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/bill', billRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.get('/', (req, res) => res.send('API Running'));
 

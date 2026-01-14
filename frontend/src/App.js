@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Houses from './pages/Houses';
 import Bills from './pages/Bills';
 import Wallet from './pages/Wallet';
+import MessageBoard from './pages/MessageBoard';
 import Navbar from './components/Navbar';
 import './App.css';
 
@@ -61,6 +62,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Wallet />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <MessageBoard />
               </ProtectedRoute>
             }
           />
