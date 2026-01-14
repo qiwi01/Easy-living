@@ -122,6 +122,34 @@ router.put('/manage', auth, async (req, res) => {
   }
 });
 
+// Leave house
+router.post('/leave', auth, async (req, res) => {
+  try {
+    const house = await House.findById(req.user.houseId);
+    if (!house) return res.status(404).json({ msg: 'House not found' });
+
+    // Remove user from house tenants
+    house.tenants = house.tenants.filter(id => id.toString() !== req.user.id);
+    house.subAdmins = house.subAdmins.filter(id => id.toString() !== req.user.id);
+
+    // If user is admin and there are other members, transfer admin to another member
+    if (house.adminId.toString() === req.user.id && house.tenants.length > 0) {
+      house.adminId = house.tenants[0]; // Transfer admin to first remaining member
+    }
+
+    await house.save();
+
+    // Remove houseId from user
+    req.user.houseId = null;
+    await req.user.save();
+
+    res.json({ msg: 'Successfully left the house' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 // Delete house (admin only)
 router.delete('/delete', auth, async (req, res) => {
   try {

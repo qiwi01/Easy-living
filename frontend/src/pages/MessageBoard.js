@@ -28,10 +28,15 @@ const MessageBoard = () => {
 
   const fetchMessages = async () => {
     try {
+      setMessages([]);
       const response = await api.get('/messages');
       setMessages(response.data);
     } catch (err) {
-      console.error('Failed to fetch messages:', err);
+      // Don't show error if user hasn't joined a house yet
+      if (err.response?.status !== 400) {
+        console.error('Failed to fetch messages:', err);
+      }
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -44,7 +49,12 @@ const MessageBoard = () => {
       setChatSettings(response.data.chatSettings);
       setIsAdmin(response.data.adminId === user?.id);
     } catch (err) {
-      console.error('Failed to fetch chat settings:', err);
+      // Don't show error if user hasn't joined a house yet
+      if (err.response?.status !== 400) {
+        console.error('Failed to fetch chat settings:', err);
+      }
+      setChatSettings(null);
+      setIsAdmin(false);
     }
   };
 

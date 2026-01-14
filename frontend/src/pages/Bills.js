@@ -7,6 +7,8 @@ const Bills = () => {
   const [bills, setBills] = useState([]);
   const [house, setHouse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [billsLoading, setBillsLoading] = useState(true);
+  const [houseLoading, setHouseLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -23,22 +25,47 @@ const Bills = () => {
   }, []);
 
   const fetchBillsData = async () => {
-    try {
-      setLoading(true);
+    setLoading(true);
+    setError('');
 
-      // Fetch bills
+    // Fetch bills and house data independently
+    await Promise.all([
+      fetchBills(),
+      fetchHouseInfo()
+    ]);
+
+    setLoading(false);
+  };
+
+  const fetchBills = async () => {
+    try {
+      setBillsLoading(true);
       const billsResponse = await api.get('/bill/my-bills');
       setBills(billsResponse.data);
+    } catch (err) {
+      // Don't show error if user hasn't joined a house yet
+      if (err.response?.status !== 400) {
+        console.error('Bills data error:', err);
+      }
+      setBills([]);
+    } finally {
+      setBillsLoading(false);
+    }
+  };
 
-      // Fetch house info to check if admin
+  const fetchHouseInfo = async () => {
+    try {
+      setHouseLoading(true);
       const houseResponse = await api.get('/house/my-house');
       setHouse(houseResponse.data);
-
     } catch (err) {
-      setError('Failed to load bills data');
-      console.error('Bills error:', err);
+      // Don't show error if user hasn't joined a house yet
+      if (err.response?.status !== 400) {
+        console.error('House info error:', err);
+      }
+      setHouse(null);
     } finally {
-      setLoading(false);
+      setHouseLoading(false);
     }
   };
 

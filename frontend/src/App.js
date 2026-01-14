@@ -22,31 +22,6 @@ const ProtectedRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" />;
 };
 
-// Debug Component to show auth status
-const DebugAuth = () => {
-  const { token, user, loading } = useAuth();
-
-  if (loading) return <div>Loading auth...</div>;
-
-  return (
-    <div style={{
-      position: 'fixed',
-      bottom: '10px',
-      right: '10px',
-      background: 'rgba(0,0,0,0.8)',
-      color: 'white',
-      padding: '10px',
-      borderRadius: '5px',
-      fontSize: '12px',
-      zIndex: 9999
-    }}>
-      <div>Token: {token ? '✅' : '❌'}</div>
-      <div>User: {user ? user.email : 'No user'}</div>
-      <button onClick={() => console.log('Token:', token)} style={{marginTop: '5px', fontSize: '10px'}}>Log Token</button>
-    </div>
-  );
-};
-
 // Main App Component
 function AppContent() {
   const { token } = useAuth();
@@ -101,7 +76,6 @@ function AppContent() {
           <Route path="/" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
         </Routes>
       </div>
-      <DebugAuth />
     </div>
   );
 }

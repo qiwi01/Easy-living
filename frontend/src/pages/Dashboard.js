@@ -8,6 +8,9 @@ const Dashboard = () => {
   const [bills, setBills] = useState([]);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [houseLoading, setHouseLoading] = useState(true);
+  const [billsLoading, setBillsLoading] = useState(true);
+  const [walletLoading, setWalletLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -15,26 +18,61 @@ const Dashboard = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
+    setLoading(true);
+    setError('');
 
-      // Fetch user's house
+    // Fetch all data independently
+    await Promise.all([
+      fetchHouseData(),
+      fetchBillsData(),
+      fetchWalletData()
+    ]);
+
+    setLoading(false);
+  };
+
+  const fetchHouseData = async () => {
+    try {
+      setHouseLoading(true);
       const houseResponse = await api.get('/house/my-house');
       setHouse(houseResponse.data);
+    } catch (err) {
+      // Don't show error if user hasn't joined a house yet
+      if (err.response?.status !== 400) {
+        console.error('House data error:', err);
+      }
+      setHouse(null);
+    } finally {
+      setHouseLoading(false);
+    }
+  };
 
-      // Fetch recent bills
+  const fetchBillsData = async () => {
+    try {
+      setBillsLoading(true);
       const billsResponse = await api.get('/bill/my-bills');
       setBills(billsResponse.data.slice(0, 5)); // Show only recent 5 bills
+    } catch (err) {
+      // Don't show error if user hasn't joined a house yet
+      if (err.response?.status !== 400) {
+        console.error('Bills data error:', err);
+      }
+      setBills([]);
+    } finally {
+      setBillsLoading(false);
+    }
+  };
 
-      // Fetch wallet balance
+  const fetchWalletData = async () => {
+    try {
+      setWalletLoading(true);
       const walletResponse = await api.get('/wallet/balance');
       setWalletBalance(walletResponse.data.balance);
-
     } catch (err) {
-      setError('Failed to load dashboard data');
-      console.error('Dashboard error:', err);
+      console.error('Wallet data error:', err);
+      setWalletBalance(0);
     } finally {
-      setLoading(false);
+      setWalletLoading(false);
     }
   };
 
