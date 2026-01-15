@@ -23,7 +23,7 @@ const MessageBoard = () => {
   useEffect(() => {
     fetchMessages();
     fetchChatSettings();
-  }, []);
+  });
 
   useEffect(() => {
     scrollToBottom();

@@ -4,11 +4,9 @@ import api from '../services/api';
 import '../styles/Wallet.css';
 
 const Wallet = () => {
-  const { user } = useContext(AuthContext);
   const [balance, setBalance] = useState(0);
   const [houseBalance, setHouseBalance] = useState(0);
   const [house, setHouse] = useState(null);
-  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showTopupForm, setShowTopupForm] = useState(false);
@@ -315,36 +313,10 @@ const Wallet = () => {
         <h2>Transaction History</h2>
 
         <div className="transactions-container">
-          {transactions.length > 0 ? (
-            transactions.map(transaction => (
-              <div key={transaction._id} className="transaction-item">
-                <div className="transaction-info">
-                  <div className="transaction-type">
-                    <span className={`type-badge ${transaction.type}`}>
-                      {transaction.type}
-                    </span>
-                    <h4>{transaction.description}</h4>
-                  </div>
-                  <div className="transaction-details">
-                    <small>{new Date(transaction.createdAt).toLocaleDateString()}</small>
-                    {transaction.paystackRef && (
-                      <small>Ref: {transaction.paystackRef}</small>
-                    )}
-                  </div>
-                </div>
-                <div className="transaction-amount">
-                  <span className={`amount ${transaction.type === 'topup' ? 'positive' : 'negative'}`}>
-                    {transaction.type === 'topup' ? '+' : '-'}₦{transaction.amount.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="no-transactions">
-              <h3>No transactions yet</h3>
-              <p>Your wallet transaction history will appear here.</p>
-            </div>
-          )}
+          <div className="no-transactions">
+            <h3>No transactions yet</h3>
+            <p>Your wallet transaction history will appear here.</p>
+          </div>
         </div>
       </div>
 

@@ -11,8 +11,6 @@ const Houses = () => {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
-  const [showAdminControls, setShowAdminControls] = useState(false);
-  const [dataVersion, setDataVersion] = useState(0); // Force re-fetch trigger
 
   // Create house form
   const [createForm, setCreateForm] = useState({
