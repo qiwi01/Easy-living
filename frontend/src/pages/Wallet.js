@@ -23,7 +23,7 @@ const Wallet = () => {
 
   useEffect(() => {
     fetchWalletData();
-  }, [user]); // Re-fetch when user changes
+  }, []); // Run on mount - page reload will trigger this
 
   const fetchWalletData = async () => {
     try {

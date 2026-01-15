@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, [user]); // Re-fetch when user changes
+  }, []); // Run on mount - page reload will trigger this
 
   const fetchDashboardData = async () => {
     setLoading(true);

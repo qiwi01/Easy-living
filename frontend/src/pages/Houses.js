@@ -60,6 +60,7 @@ const Houses = () => {
     try {
       const response = await api.post('/house/create', createForm);
       console.log('House creation response:', response.data);
+      console.log('About to reload page...');
       // Force a page reload to ensure all components get fresh data
       window.location.reload();
     } catch (err) {
