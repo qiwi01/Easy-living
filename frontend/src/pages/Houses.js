@@ -11,6 +11,7 @@ const Houses = () => {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
+  const [showAdminControls, setShowAdminControls] = useState(false);
 
   // Create house form
   const [createForm, setCreateForm] = useState({
@@ -95,6 +96,60 @@ const Houses = () => {
       setMembers([]);
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to leave house');
+    }
+  };
+
+  const handleRemoveMember = async (memberId, memberEmail) => {
+    if (!window.confirm(`Are you sure you want to remove ${memberEmail} from the house?`)) return;
+
+    try {
+      await api.put('/house/manage', {
+        action: 'remove',
+        userId: memberId
+      });
+      await fetchHouseData(); // Refresh the house data
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to remove member');
+    }
+  };
+
+  const handlePromoteMember = async (memberId, memberEmail) => {
+    if (!window.confirm(`Are you sure you want to promote ${memberEmail} to admin?`)) return;
+
+    try {
+      await api.put('/house/manage', {
+        action: 'promote',
+        userId: memberId
+      });
+      await fetchHouseData(); // Refresh the house data
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to promote member');
+    }
+  };
+
+  const handleDemoteMember = async (memberId, memberEmail) => {
+    if (!window.confirm(`Are you sure you want to demote ${memberEmail} from admin?`)) return;
+
+    try {
+      await api.put('/house/manage', {
+        action: 'demote',
+        userId: memberId
+      });
+      await fetchHouseData(); // Refresh the house data
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to demote member');
+    }
+  };
+
+  const handleDeleteHouse = async () => {
+    if (!window.confirm('Are you sure you want to DELETE this house? This action cannot be undone and will remove all members and bills.')) return;
+
+    try {
+      await api.delete('/house/delete');
+      setHouse(null);
+      setMembers([]);
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to delete house');
     }
   };
 
@@ -272,14 +327,24 @@ const Houses = () => {
             </div>
 
             <div className="house-actions">
+              {house.isAdmin && (
+                <div className="admin-actions">
+                  <button className="btn-danger" onClick={handleDeleteHouse}>
+                    🗑️ Delete House
+                  </button>
+                </div>
+              )}
               <button className="btn-danger" onClick={handleLeaveHouse}>
-                Leave House
+                🚪 Leave House
               </button>
             </div>
           </div>
 
           <div className="members-card">
-            <h3>House Members</h3>
+            <h3>House Members ({members.length})</h3>
+            {house.isAdmin && (
+              <p className="admin-note">As house admin, you can promote/demote members and remove them from the house.</p>
+            )}
             <div className="members-list">
               {members.map(member => (
                 <div key={member._id} className="member-item">
@@ -290,6 +355,34 @@ const Houses = () => {
                   <div className="member-role">
                     {member.role === 'admin' ? 'Administrator' : 'Tenant'}
                   </div>
+                  {house.isAdmin && member._id.toString() !== user._id && (
+                    <div className="member-actions">
+                      {member._id.toString() === house.adminId.toString() ? (
+                        <button
+                          className="btn-warning"
+                          onClick={() => handleDemoteMember(member._id, member.email)}
+                          title="Demote from admin"
+                        >
+                          👎 Demote
+                        </button>
+                      ) : (
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handlePromoteMember(member._id, member.email)}
+                          title="Promote to admin"
+                        >
+                          👑 Promote
+                        </button>
+                      )}
+                      <button
+                        className="btn-danger"
+                        onClick={() => handleRemoveMember(member._id, member.email)}
+                        title="Remove from house"
+                      >
+                        🚫 Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

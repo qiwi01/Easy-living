@@ -6,11 +6,20 @@ import '../styles/Wallet.css';
 const Wallet = () => {
   const { user } = useContext(AuthContext);
   const [balance, setBalance] = useState(0);
+  const [houseBalance, setHouseBalance] = useState(0);
+  const [house, setHouse] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showTopupForm, setShowTopupForm] = useState(false);
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [topupAmount, setTopupAmount] = useState('');
+  const [withdrawForm, setWithdrawForm] = useState({
+    amount: '',
+    accountName: '',
+    accountNumber: '',
+    bankName: ''
+  });
 
   useEffect(() => {
     fetchWalletData();
@@ -20,9 +29,23 @@ const Wallet = () => {
     try {
       setLoading(true);
 
-      // Fetch balance
+      // Fetch personal balance
       const balanceResponse = await api.get('/wallet/balance');
       setBalance(balanceResponse.data.balance);
+
+      // Try to fetch house wallet balance (only works if user is in a house)
+      try {
+        const houseResponse = await api.get('/wallet/house-balance');
+        setHouseBalance(houseResponse.data.balance);
+
+        // Also fetch house info for admin checks
+        const houseInfoResponse = await api.get('/house/my-house');
+        setHouse(houseInfoResponse.data);
+      } catch (houseErr) {
+        // User not in a house, that's fine
+        setHouseBalance(0);
+        setHouse(null);
+      }
 
       // Fetch transactions (if available)
       // For now, we'll show a placeholder since we may not have this endpoint yet
@@ -32,6 +55,37 @@ const Wallet = () => {
       console.error('Wallet error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleWithdraw = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await api.post('/wallet/house-withdraw', {
+        amount: parseFloat(withdrawForm.amount),
+        bankDetails: {
+          accountName: withdrawForm.accountName,
+          accountNumber: withdrawForm.accountNumber,
+          bankName: withdrawForm.bankName
+        }
+      });
+
+      setHouseBalance(response.data.balance);
+      setShowWithdrawForm(false);
+      setWithdrawForm({
+        amount: '',
+        accountName: '',
+        accountNumber: '',
+        bankName: ''
+      });
+
+      // Refresh data
+      await fetchWalletData();
+
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to withdraw funds');
     }
   };
 
@@ -71,29 +125,56 @@ const Wallet = () => {
       <div className="page-header">
         <h1>My Wallet</h1>
         <p>Manage your house payment funds</p>
-        <button
-          className="btn-primary"
-          onClick={() => setShowTopupForm(true)}
-        >
-          Top Up Wallet
-        </button>
+        <div className="wallet-actions">
+          <button
+            className="btn-primary"
+            onClick={() => setShowTopupForm(true)}
+          >
+            💳 Top Up Personal Wallet
+          </button>
+          {house?.isAdmin && (
+            <button
+              className="btn-secondary"
+              onClick={() => setShowWithdrawForm(true)}
+            >
+              🏦 Withdraw House Funds
+            </button>
+          )}
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      {/* Wallet Balance Card */}
+      {/* Personal Wallet Balance Card */}
       <div className="wallet-balance-card">
         <div className="balance-header">
-          <h2>Current Balance</h2>
+          <h2>Personal Wallet Balance</h2>
           <i className="icon-wallet-large"></i>
         </div>
         <div className="balance-amount">
           ₦{balance.toLocaleString()}
         </div>
         <p className="balance-description">
-          Available funds for house bill payments
+          Your personal funds for house bill payments
         </p>
       </div>
+
+      {/* House Wallet Balance Card (only if user is in a house) */}
+      {house && (
+        <div className="wallet-balance-card house-wallet">
+          <div className="balance-header">
+            <h2>House Wallet Balance</h2>
+            <i className="icon-house"></i>
+          </div>
+          <div className="balance-amount">
+            ₦{houseBalance.toLocaleString()}
+          </div>
+          <p className="balance-description">
+            Collective house funds from bill payments
+            {house.isAdmin && ' • Admin access to withdraw'}
+          </p>
+        </div>
+      )}
 
       {/* Topup Modal */}
       {showTopupForm && (
@@ -134,6 +215,94 @@ const Wallet = () => {
                 </button>
                 <button type="submit" className="btn-primary" disabled={!topupAmount || parseFloat(topupAmount) < 100}>
                   Proceed to Payment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Withdrawal Modal */}
+      {showWithdrawForm && house?.isAdmin && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Withdraw House Funds</h3>
+              <button
+                className="close-btn"
+                onClick={() => setShowWithdrawForm(false)}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleWithdraw} className="modal-form">
+              <div className="form-group">
+                <label htmlFor="withdrawAmount">Amount to Withdraw (₦)</label>
+                <input
+                  type="number"
+                  id="withdrawAmount"
+                  value={withdrawForm.amount}
+                  onChange={(e) => setWithdrawForm({...withdrawForm, amount: e.target.value})}
+                  required
+                  min="100"
+                  max={houseBalance}
+                  step="50"
+                  placeholder="Enter amount to withdraw"
+                />
+                <small>Available balance: ₦{houseBalance.toLocaleString()}</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="accountName">Account Name</label>
+                <input
+                  type="text"
+                  id="accountName"
+                  value={withdrawForm.accountName}
+                  onChange={(e) => setWithdrawForm({...withdrawForm, accountName: e.target.value})}
+                  required
+                  placeholder="Enter account name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="accountNumber">Account Number</label>
+                <input
+                  type="text"
+                  id="accountNumber"
+                  value={withdrawForm.accountNumber}
+                  onChange={(e) => setWithdrawForm({...withdrawForm, accountNumber: e.target.value})}
+                  required
+                  placeholder="Enter account number"
+                  maxLength="10"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="bankName">Bank Name</label>
+                <input
+                  type="text"
+                  id="bankName"
+                  value={withdrawForm.bankName}
+                  onChange={(e) => setWithdrawForm({...withdrawForm, bankName: e.target.value})}
+                  required
+                  placeholder="Enter bank name"
+                />
+              </div>
+
+              <div className="payment-notice">
+                <p><strong>Warning:</strong> This will transfer funds from the house wallet to your specified bank account. This action cannot be undone.</p>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setShowWithdrawForm(false)}>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-danger"
+                  disabled={!withdrawForm.amount || !withdrawForm.accountName || !withdrawForm.accountNumber || !withdrawForm.bankName || parseFloat(withdrawForm.amount) > houseBalance}
+                >
+                  Withdraw Funds
                 </button>
               </div>
             </form>
