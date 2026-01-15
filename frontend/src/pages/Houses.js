@@ -12,6 +12,7 @@ const Houses = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [showAdminControls, setShowAdminControls] = useState(false);
+  const [dataVersion, setDataVersion] = useState(0); // Force re-fetch trigger
 
   // Create house form
   const [createForm, setCreateForm] = useState({
@@ -58,13 +59,9 @@ const Houses = () => {
 
     try {
       const response = await api.post('/house/create', createForm);
-      setHouse(response.data.house);
-      // Use the populated members from the response
-      setMembers(response.data.house.tenants || []);
-      // Refresh user data to update houseId in context
-      await refreshUser();
-      setShowCreateForm(false);
-      setCreateForm({ name: '', address: '' });
+      console.log('House creation response:', response.data);
+      // Force a page reload to ensure all components get fresh data
+      window.location.reload();
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to create house');
     }
