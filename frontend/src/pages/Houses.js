@@ -250,6 +250,10 @@ const Houses = () => {
 
             <div className="house-details-grid">
               <div className="detail-item">
+                <strong>House Admin:</strong>
+                <span>{house.tenants?.find(tenant => tenant._id.toString() === house.adminId.toString())?.email || 'Unknown'}</span>
+              </div>
+              <div className="detail-item">
                 <strong>House Code:</strong>
                 <span className="code-display">{house.joinCode}</span>
               </div>
@@ -281,7 +285,7 @@ const Houses = () => {
                 <div key={member._id} className="member-item">
                   <div className="member-info">
                     <span className="member-email">{member.email}</span>
-                    {member._id === house.admin && <span className="admin-badge">Admin</span>}
+                    {member._id.toString() === house.adminId.toString() && <span className="admin-badge">Admin</span>}
                   </div>
                   <div className="member-role">
                     {member.role === 'admin' ? 'Administrator' : 'Tenant'}
