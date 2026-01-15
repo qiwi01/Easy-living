@@ -23,7 +23,7 @@ const Wallet = () => {
 
   useEffect(() => {
     fetchWalletData();
-  }, []);
+  }, [user]); // Re-fetch when user changes
 
   const fetchWalletData = async () => {
     try {

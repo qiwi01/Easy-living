@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [user]); // Re-fetch when user changes
 
   const fetchDashboardData = async () => {
     setLoading(true);

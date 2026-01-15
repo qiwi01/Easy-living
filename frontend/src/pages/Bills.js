@@ -23,7 +23,7 @@ const Bills = () => {
 
   useEffect(() => {
     fetchBillsData();
-  }, []);
+  }, [user]); // Re-fetch when user changes (e.g., after joining house)
 
   const fetchBillsData = async () => {
     setLoading(true);
