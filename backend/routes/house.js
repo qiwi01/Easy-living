@@ -28,6 +28,12 @@ router.post('/create', auth, async (req, res) => {
     req.user.houseId = house.id;
     await req.user.save();
 
+    // Populate house data for response and add isAdmin flag
+    await house.populate('tenants');
+    await house.populate('subAdmins');
+    house.isAdmin = true; // Creator is always admin
+    house.isSubAdmin = false;
+
     res.json({ house, joinCode });
   } catch (err) {
     console.error(err.message);
@@ -58,6 +64,9 @@ router.post('/join', auth, async (req, res) => {
     // Populate house data for response
     await house.populate('tenants');
     await house.populate('subAdmins');
+    // Add admin flags for the joining user
+    house.isAdmin = house.adminId.toString() === req.user.id;
+    house.isSubAdmin = house.subAdmins.some(subAdmin => subAdmin._id.toString() === req.user.id);
 
     res.json({ house });
   } catch (err) {
@@ -72,6 +81,9 @@ router.get('/info', auth, async (req, res) => {
     if (!req.user.houseId) return res.status(400).json({ msg: 'Not in a house' });
 
     const house = await House.findById(req.user.houseId).populate('tenants').populate('subAdmins');
+    // Add isAdmin flag for frontend
+    house.isAdmin = house.adminId.toString() === req.user.id;
+    house.isSubAdmin = house.subAdmins.some(subAdmin => subAdmin._id.toString() === req.user.id);
     res.json(house);
   } catch (err) {
     console.error(err.message);
@@ -85,6 +97,9 @@ router.get('/my-house', auth, async (req, res) => {
     if (!req.user.houseId) return res.status(400).json({ msg: 'Not in a house' });
 
     const house = await House.findById(req.user.houseId).populate('tenants').populate('subAdmins');
+    // Add isAdmin and isSubAdmin flags for frontend
+    house.isAdmin = house.adminId.toString() === req.user.id;
+    house.isSubAdmin = house.subAdmins.some(subAdmin => subAdmin._id.toString() === req.user.id);
     res.json(house);
   } catch (err) {
     console.error(err.message);
