@@ -85,8 +85,16 @@ router.post('/pay', auth, async (req, res) => {
         return res.status(400).json({ msg: 'Insufficient balance' });
       }
 
+      // Deduct from user wallet
       req.user.walletBalance -= bill.amount;
       await req.user.save();
+
+      // Add to house group wallet
+      const house = await House.findById(req.user.houseId);
+      if (house) {
+        house.groupWalletBalance += bill.amount;
+        await house.save();
+      }
 
       const payment = {
         tenantId: req.user.id,
@@ -101,11 +109,12 @@ router.post('/pay', auth, async (req, res) => {
         userId: req.user.id,
         type: 'payment',
         amount: bill.amount,
-        status: 'success'
+        status: 'success',
+        houseId: req.user.houseId
       });
       await transaction.save();
 
-      res.json({ msg: 'Payment successful' });
+      res.json({ msg: 'Payment successful', houseBalance: house?.groupWalletBalance });
     } else {
       // For paystack, similar to topup, but need ref
       // For now, assume wallet only

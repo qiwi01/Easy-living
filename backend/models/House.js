@@ -6,6 +6,7 @@ const HouseSchema = new mongoose.Schema({
   joinCode: { type: String, required: true, unique: true },
   tenants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   subAdmins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  groupWalletBalance: { type: Number, default: 0 },
   // Chat settings
   chatSettings: {
     allowEveryoneToPost: { type: Boolean, default: true }, // If false, only admins can post

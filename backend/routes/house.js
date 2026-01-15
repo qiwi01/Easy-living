@@ -37,7 +37,7 @@ router.post('/create', auth, async (req, res) => {
 
 // Join house
 router.post('/join', auth, async (req, res) => {
-  const { code } = req.body;
+  const { code, name, roomId } = req.body;
 
   try {
     const house = await House.findOne({ joinCode: code });
@@ -45,11 +45,19 @@ router.post('/join', auth, async (req, res) => {
 
     if (house.tenants.includes(req.user.id)) return res.status(400).json({ msg: 'Already in house' });
 
+    // Update user info
+    req.user.name = name;
+    req.user.roomId = roomId;
+    req.user.houseId = house.id;
+    await req.user.save();
+
+    // Add user to house
     house.tenants.push(req.user.id);
     await house.save();
 
-    req.user.houseId = house.id;
-    await req.user.save();
+    // Populate house data for response
+    await house.populate('tenants');
+    await house.populate('subAdmins');
 
     res.json({ house });
   } catch (err) {

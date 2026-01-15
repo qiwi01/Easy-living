@@ -19,7 +19,11 @@ const Houses = () => {
   });
 
   // Join house form
-  const [joinCode, setJoinCode] = useState('');
+  const [joinForm, setJoinForm] = useState({
+    code: '',
+    name: '',
+    roomId: ''
+  });
 
   useEffect(() => {
     fetchHouseData();
@@ -67,11 +71,11 @@ const Houses = () => {
     setError('');
 
     try {
-      const response = await api.post('/house/join', { code: joinCode });
+      const response = await api.post('/house/join', joinForm);
       setHouse(response.data.house);
       await fetchHouseData(); // Refresh to get updated member list
       setShowJoinForm(false);
-      setJoinCode('');
+      setJoinForm({ code: '', name: '', roomId: '' });
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to join house');
     }
@@ -186,15 +190,36 @@ const Houses = () => {
                 </div>
                 <form onSubmit={handleJoinHouse} className="modal-form">
                   <div className="form-group">
-                    <label htmlFor="joinCode">House Code</label>
+                    <label htmlFor="code">House Code</label>
                     <input
                       type="text"
-                      id="joinCode"
-                      value={joinCode}
-                      onChange={(e) => setJoinCode(e.target.value)}
+                      id="code"
+                      value={joinForm.code}
+                      onChange={(e) => setJoinForm({...joinForm, code: e.target.value.toUpperCase()})}
                       required
                       placeholder="Enter house code"
-                      style={{ textTransform: 'uppercase' }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="name">Your Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={joinForm.name}
+                      onChange={(e) => setJoinForm({...joinForm, name: e.target.value})}
+                      required
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="roomId">Room ID</label>
+                    <input
+                      type="text"
+                      id="roomId"
+                      value={joinForm.roomId}
+                      onChange={(e) => setJoinForm({...joinForm, roomId: e.target.value})}
+                      required
+                      placeholder="e.g., A101, B205"
                     />
                   </div>
                   <div className="modal-actions">
