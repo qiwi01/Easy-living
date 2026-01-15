@@ -50,8 +50,28 @@ export const AuthProvider = ({ children }) => {
     delete axios.defaults.headers.common['x-auth-token'];
   };
 
+  const updateUser = (userData) => {
+    setUser(userData);
+  };
+
+  const refreshUser = async () => {
+    if (token) {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {
+          headers: { 'x-auth-token': token }
+        });
+        setUser(response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Failed to refresh user data:', error);
+        return null;
+      }
+    }
+    return null;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, refreshUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

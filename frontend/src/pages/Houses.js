@@ -4,7 +4,7 @@ import api from '../services/api';
 import '../styles/Houses.css';
 
 const Houses = () => {
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
   const [house, setHouse] = useState(null);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,8 +36,8 @@ const Houses = () => {
       setHouse(response.data);
 
       if (response.data) {
-        // Use populated members from the house data
-        setMembers(response.data.tenants || []);
+        // Use populated members from the house data, filter out null values
+        setMembers((response.data.tenants || []).filter(member => member != null));
       }
     } catch (err) {
       // No house found, which is normal for new users
@@ -58,7 +58,10 @@ const Houses = () => {
     try {
       const response = await api.post('/house/create', createForm);
       setHouse(response.data.house);
-      setMembers([user]); // Add current user as first member
+      // Use the populated members from the response
+      setMembers(response.data.house.tenants || []);
+      // Refresh user data to update houseId in context
+      await refreshUser();
       setShowCreateForm(false);
       setCreateForm({ name: '', address: '' });
     } catch (err) {
@@ -74,6 +77,8 @@ const Houses = () => {
       const response = await api.post('/house/join', joinForm);
       setHouse(response.data.house);
       await fetchHouseData(); // Refresh to get updated member list
+      // Refresh user data to update houseId in context
+      await refreshUser();
       setShowJoinForm(false);
       setJoinForm({ code: '', name: '', roomId: '' });
     } catch (err) {
