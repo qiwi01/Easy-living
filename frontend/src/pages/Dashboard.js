@@ -1,22 +1,17 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
   const [house, setHouse] = useState(null);
   const [bills, setBills] = useState([]);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [houseLoading, setHouseLoading] = useState(true);
-  const [billsLoading, setBillsLoading] = useState(true);
-  const [walletLoading, setWalletLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
-  }, []); // Run on mount - page reload will trigger this
+  }); // Run on mount - page reload will trigger this
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -34,7 +29,6 @@ const Dashboard = () => {
 
   const fetchHouseData = async () => {
     try {
-      setHouseLoading(true);
       const houseResponse = await api.get('/house/my-house');
       setHouse(houseResponse.data);
     } catch (err) {
@@ -43,14 +37,11 @@ const Dashboard = () => {
         console.error('House data error:', err);
       }
       setHouse(null);
-    } finally {
-      setHouseLoading(false);
     }
   };
 
   const fetchBillsData = async () => {
     try {
-      setBillsLoading(true);
       const billsResponse = await api.get('/bill/my-bills');
       setBills(billsResponse.data.slice(0, 5)); // Show only recent 5 bills
     } catch (err) {
@@ -59,21 +50,16 @@ const Dashboard = () => {
         console.error('Bills data error:', err);
       }
       setBills([]);
-    } finally {
-      setBillsLoading(false);
     }
   };
 
   const fetchWalletData = async () => {
     try {
-      setWalletLoading(true);
       const walletResponse = await api.get('/wallet/balance');
       setWalletBalance(walletResponse.data.balance);
     } catch (err) {
       console.error('Wallet data error:', err);
       setWalletBalance(0);
-    } finally {
-      setWalletLoading(false);
     }
   };
 

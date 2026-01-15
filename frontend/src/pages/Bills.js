@@ -24,7 +24,7 @@ const Bills = () => {
   useEffect(() => {
     console.log('Bills useEffect triggered');
     fetchBillsData();
-  }, []); // Run on mount - page reload will trigger this
+  }); // Run on mount - page reload will trigger this
 
   const fetchBillsData = async () => {
     setLoading(true);
