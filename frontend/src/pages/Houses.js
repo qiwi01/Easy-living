@@ -32,15 +32,16 @@ const Houses = () => {
       setHouse(response.data);
 
       if (response.data) {
-        // Fetch members if house exists
-        const membersResponse = await api.get(`/house/${response.data._id}/members`);
-        setMembers(membersResponse.data);
+        // Use populated members from the house data
+        setMembers(response.data.tenants || []);
       }
     } catch (err) {
       // No house found, which is normal for new users
-      if (err.response?.status !== 404) {
+      if (err.response?.status !== 400) {
         setError('Failed to load house data');
       }
+      setHouse(null);
+      setMembers([]);
     } finally {
       setLoading(false);
     }
@@ -220,7 +221,7 @@ const Houses = () => {
             <div className="house-details-grid">
               <div className="detail-item">
                 <strong>House Code:</strong>
-                <span className="code-display">{house.code}</span>
+                <span className="code-display">{house.joinCode}</span>
               </div>
               <div className="detail-item">
                 <strong>Address:</strong>

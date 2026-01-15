@@ -115,8 +115,8 @@ const Dashboard = () => {
             {house ? (
               <>
                 <h4>{house.name}</h4>
-                <p>Code: {house.code}</p>
-                <p>Members: {house.members?.length || 0}</p>
+                <p>Code: {house.joinCode}</p>
+                <p>Members: {house.tenants?.length || 0}</p>
                 {house.isAdmin && <span className="admin-badge">Admin</span>}
               </>
             ) : (
