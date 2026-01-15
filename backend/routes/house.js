@@ -34,6 +34,14 @@ router.post('/create', auth, async (req, res) => {
     house.isAdmin = true; // Creator is always admin
     house.isSubAdmin = false;
 
+    console.log('House created:', {
+      houseId: house._id,
+      adminId: house.adminId,
+      userId: req.user.id,
+      isAdmin: house.isAdmin,
+      tenants: house.tenants.length
+    });
+
     res.json({ house, joinCode });
   } catch (err) {
     console.error(err.message);

@@ -22,6 +22,7 @@ const Bills = () => {
   });
 
   useEffect(() => {
+    console.log('Bills useEffect triggered, user:', user);
     fetchBillsData();
   }, [user]); // Re-fetch when user changes (e.g., after joining house)
 
@@ -125,6 +126,7 @@ const Bills = () => {
       <div className="page-header">
         <h1>Bills</h1>
         <p>View and manage house bills</p>
+        {console.log('Bills - House:', house, 'isAdmin:', house?.isAdmin)}
         {house?.isAdmin && (
           <button
             className="btn-primary"
